@@ -10,11 +10,12 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
 import eu.kanade.tachiyomi.util.asJsoup
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONArray
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import rx.Observable
@@ -136,19 +137,15 @@ class ScanManga : ParsedHttpSource() {
             return MangasPage(emptyList(), hasNextPage = false)
         }
 
-        val jsonObj = JSONArray(jsonRaw)
-        val mangaList = mutableListOf<SManga>()
-
-        for (i in 0 until jsonObj.length()) {
-            val innerArray = jsonObj.getJSONArray(i)
-            if (innerArray.length() > 0) {
-                val item = SManga.create().apply {
-                    title = innerArray.getString(0)
-                    url = innerArray.getString(1).replace("https://m.scan-manga.com", "")
+        val mangaList = json.parseToJsonElement(jsonRaw).jsonArray
+            .mapNotNull { jsonElement ->
+                jsonElement.jsonArray?.takeIf { it.size > 1 }?.let { innerArray ->
+                    SManga.create().apply {
+                        title = innerArray[0].jsonPrimitive.content
+                        url = innerArray[1].jsonPrimitive.content.replace("https://m.scan-manga.com", "")
+                    }
                 }
-                mangaList.add(item)
             }
-        }
 
         return MangasPage(mangaList, hasNextPage = false)
     }
@@ -170,10 +167,15 @@ class ScanManga : ParsedHttpSource() {
             thumbnail_url = document.select("div.image_manga img").attr("src")
         }
 
-        val findGenres = Regex("</span>([^'<]+)</a>").findAll(document.toString())
-        val genres = mutableListOf<String>()
-        for (match in findGenres) {
-            genres.add(match.groupValues[1])
+        val genres = document.select("a.infoBulle").mapNotNull { aTag ->
+            val spanTag = aTag.select("span").firstOrNull()
+            val text = aTag.ownText().trim()
+            if (text.isNotEmpty() && spanTag != null) {
+                val spanText = spanTag.text()
+                text.replace(spanText, "").trim()
+            } else {
+                null
+            }
         }
 
         genre = genres.joinToString()
@@ -217,6 +219,7 @@ class ScanManga : ParsedHttpSource() {
         if (lelUrl == null) {
             lelUrl = Regex("""['"](http.*?.scan-manga.com.*)['"]""").find(docString)?.groupValues?.get(1)
         }
+
         return Regex("""["'](.*?zoneID.*?pageID.*?siteID.*?)["']""").findAll(docString).toList().mapIndexed { i, pageParam ->
             Page(i, document.location(), lelUrl + pageParam.groupValues?.get(1))
         }
