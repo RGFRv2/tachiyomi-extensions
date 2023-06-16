@@ -48,6 +48,7 @@ class BentoManga : ParsedHttpSource() {
 
     override fun headersBuilder(): Headers.Builder = Headers.Builder()
         .add("Referer", "$baseUrl/")
+        .add("User-Agent", "Mozilla/5.0 (Linux; Android 9) AppleWebKit/537.36 (KHTML, like Gecko) Brave/107.0.0.0 Mobile Safari/537.36")
 
     // Generic (used by popular/latest/search)
     private fun mangaListFromElement(element: Element): SManga {
