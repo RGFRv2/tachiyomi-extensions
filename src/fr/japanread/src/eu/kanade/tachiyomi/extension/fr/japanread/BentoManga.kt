@@ -56,7 +56,7 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
     override fun headersBuilder(): Headers.Builder {
         val builder = super.headersBuilder().apply {
             add("Referer", "$baseUrl/")
-            
+
             // Headers for homepage + serie page
             add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
             add("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
@@ -306,6 +306,13 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
     override fun imageRequest(page: Page): Request {
         val newHeaders = headers.newBuilder()
             .set("Referer", page.url)
+            add("Accept", "image/avif,image/webp,*/*")
+            add("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
+            add("Connection", "keep-alive")
+            add("Sec-Fetch-Dest", "document")
+            add("Sec-Fetch-Mode", "navigate")
+            add("Sec-Fetch-Site", "same-origin")
+            add("Sec-Fetch-User", "?1")
             .build()
 
         return GET(page.imageUrl!!, newHeaders)
