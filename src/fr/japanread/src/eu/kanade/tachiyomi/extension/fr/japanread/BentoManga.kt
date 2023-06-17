@@ -55,16 +55,16 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
 
     override fun headersBuilder(): Headers.Builder {
         val builder = super.headersBuilder().apply {
-            add("Referer", "$baseUrl/")
+            set("Referer", "$baseUrl/")
 
             // Headers for homepage + serie page
-            add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
-            add("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
-            add("Connection", "keep-alive")
-            add("Sec-Fetch-Dest", "document")
-            add("Sec-Fetch-Mode", "navigate")
-            add("Sec-Fetch-Site", "same-origin")
-            add("Sec-Fetch-User", "?1")
+            set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
+            set("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
+            set("Connection", "keep-alive")
+            set("Sec-Fetch-Dest", "document")
+            set("Sec-Fetch-Mode", "navigate")
+            set("Sec-Fetch-Site", "same-origin")
+            set("Sec-Fetch-User", "?1")
         }
 
         val preferences = Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
@@ -162,10 +162,10 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
 
     private fun apiHeaders(refererURL: String) = headers.newBuilder().apply {
         set("Referer", refererURL)
-        add("x-requested-with", "XMLHttpRequest")
+        set("x-requested-with", "XMLHttpRequest")
         // without this we get 404 but I don't know why, I cannot find any information about this 'a' header.
         // In chrome the value is constantly changing on each request, but giving this fixed value seems to work
-        add("a", "1df19bce590b")
+        set("a", "1df19bce590b")
     }.build()
 
     // Chapters
@@ -304,16 +304,16 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
     override fun imageUrlParse(document: Document) = ""
 
     override fun imageRequest(page: Page): Request {
-        val newHeaders = headers.newBuilder()
-            .set("Referer", page.url)
-            add("Accept", "image/avif,image/webp,*/*")
-            add("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
-            add("Connection", "keep-alive")
-            add("Sec-Fetch-Dest", "document")
-            add("Sec-Fetch-Mode", "navigate")
-            add("Sec-Fetch-Site", "same-origin")
-            add("Sec-Fetch-User", "?1")
-            .build()
+        val newHeaders = headers.newBuilder().apply {
+            set("Referer", page.url)
+            set("Accept", "image/avif,image/webp,*/*")
+            set("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3")
+            set("Connection", "keep-alive")
+            set("Sec-Fetch-Dest", "document")
+            set("Sec-Fetch-Mode", "navigate")
+            set("Sec-Fetch-Site", "same-origin")
+            set("Sec-Fetch-User", "?1")
+        }.build()
 
         return GET(page.imageUrl!!, newHeaders)
     }
@@ -444,7 +444,7 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         // Maybe add the choice of a random UA ? (Like Mangathemesia)
 
-        val prefCustomUserAgent = EditTextPreference(screen.context).apply {
+        EditTextPreference(screen.context).apply {
             key = USER_AGENT_PREF
             title = TITLE_RANDOM_UA
             summary = USER_AGENT_PREF
