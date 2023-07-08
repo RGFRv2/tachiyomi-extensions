@@ -193,7 +193,7 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
     override fun chapterFromElement(element: Element): SChapter {
         return SChapter.create().apply {
             name = element.select("div.component-chapter-title a span.chapter_volume").text()
-            setUrlWithoutDomain(element.select("div.component-chapter-title a").attr("href"))
+            setUrlWithoutDomain(element.select("div.component-chapter-title a:not([style*='display:none'])").attr("href"))
             date_upload = parseRelativeDate(element.select("div.component-chapter-date").text())
             scanlator = element.select("div.component-chapter-teams a span").joinToString(" + ") { it.text() }
         }
@@ -450,8 +450,8 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
             summary = USER_AGENT_PREF
             dialogMessage =
                 "\n\nPermet d'indiquer un User-Agent custom\n" +
-                "Après l'ajout + restart de l'application, il faudra charger la page en webview et valider le captcha Cloudflare." +
-                "\n\nValeur par défaut:\n$DEFAULT_UA"
+                    "Après l'ajout + restart de l'application, il faudra charger la page en webview et valider le captcha Cloudflare." +
+                    "\n\nValeur par défaut:\n$DEFAULT_UA"
 
             setDefaultValue(DEFAULT_UA)
 
