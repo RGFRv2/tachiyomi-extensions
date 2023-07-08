@@ -450,8 +450,8 @@ class BentoManga : ParsedHttpSource(), ConfigurableSource {
             summary = USER_AGENT_PREF
             dialogMessage =
                 "\n\nPermet d'indiquer un User-Agent custom\n" +
-                    "Après l'ajout + restart de l'application, il faudra charger la page en webview et valider le captcha Cloudflare." +
-                    "\n\nValeur par défaut:\n$DEFAULT_UA"
+                "Après l'ajout + restart de l'application, il faudra charger la page en webview et valider le captcha Cloudflare." +
+                "\n\nValeur par défaut:\n$DEFAULT_UA"
 
             setDefaultValue(DEFAULT_UA)
 
